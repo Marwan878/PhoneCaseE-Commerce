@@ -78,7 +78,7 @@ export async function POST(req: Request) {
       });
 
       await resend.emails.send({
-        from: "CaseCobra <marwanmohammad432@gmail.com>",
+        from: "CaseCobra <casecobra-1.com>",
         to: [event.data.object.customer_details.email],
         subject: "Thanks for your order!",
         react: OrderReceivedEmail({
