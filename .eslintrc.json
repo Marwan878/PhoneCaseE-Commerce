@@ -4,6 +4,7 @@
     "react/no-unescaped-entities": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "no-var": "off",
-    "@next/next/no-img-element": "off"
+    "@next/next/no-img-element": "off",
+    "@typescript-eslint/ban-ts-comment": "off"
   }
 }
