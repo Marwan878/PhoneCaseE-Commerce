@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { Resend } from "resend";
-import OrderRecievedEmail from "@/components/emails/OrderRecievedEmail";
+import OrderReceivedEmail from "@/components/emails/OrderRecievedEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -17,10 +17,16 @@ export async function POST(req: Request) {
       return new Response("Invalid signature", { status: 400 });
     }
 
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      throw new Error(
+        "STRIPE_WEBHOOK_SECRET is not set as an environment variable."
+      );
+    }
+
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET
     );
 
     if (event.type === "checkout.session.completed") {
@@ -75,9 +81,10 @@ export async function POST(req: Request) {
         from: "CaseCobra <hello@joshtriedcoding.com>",
         to: [event.data.object.customer_details.email],
         subject: "Thanks for your order!",
-        react: OrderRecievedEmail({
+        react: OrderReceivedEmail({
           orderId,
           orderDate: updatedOrder.createdAt.toLocaleDateString(),
+          // @ts-ignore
           shippingAddress: {
             name: session.customer_details!.name!,
             city: shippingAddress!.city!,
@@ -85,8 +92,6 @@ export async function POST(req: Request) {
             postalCode: shippingAddress!.postal_code!,
             street: shippingAddress!.line1!,
             state: shippingAddress!.state,
-            id: "",
-            phoneNumber: null
           },
         }),
       });
